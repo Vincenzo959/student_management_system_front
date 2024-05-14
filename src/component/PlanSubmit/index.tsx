@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { InboxOutlined } from "@ant-design/icons";
 import type { UploadProps } from "antd";
 import { Alert, Button, Card, Flex, Form, Input, message, Upload } from "antd";
@@ -6,29 +6,31 @@ import TextArea from "antd/es/input/TextArea";
 
 const { Dragger } = Upload;
 
-const props: UploadProps = {
-  name: "file",
-  multiple: true,
-  action: "https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188",
-  onChange(info) {
-    const { status } = info.file;
-    if (status !== "uploading") {
-      console.log(info.file, info.fileList);
-    }
-    if (status === "done") {
-      message.success(`${info.file.name} file uploaded successfully.`);
-    } else if (status === "error") {
-      message.error(`${info.file.name} file upload failed.`);
-    }
-  },
-  onDrop(e) {
-    console.log("Dropped files", e.dataTransfer.files);
-  },
-};
-
 export default ({ prop }) => {
+  const [plan, setPlan] = useState();
+  const props: UploadProps = {
+    name: "file",
+    multiple: true,
+    action: "/api/minio/userPlanUpload",
+    onChange(info) {
+      // 当上传完毕
+      if (info.file.status === "done") {
+        // 判断是否上传成功
+        if (info.file.response.code === 0) {
+          console.log(info.file.response.data);
+          // 把返回的图像地址设置给 imageUrl
+          setPlan(info.file.response.data); // 取决于服务端返回的字段名
+        }
+      }
+    },
+    onDrop(e) {
+      console.log("Dropped files", e.dataTransfer.files);
+    },
+  };
+
   const publicPlan = async (value: any) => {
     value["userId"] = prop.id;
+    value["planUrl"] = plan;
     fetch("/api/student/plan/studentPushPlanInfo/insert/API_004", {
       method: "POST",
       body: JSON.stringify(value),
@@ -51,7 +53,11 @@ export default ({ prop }) => {
         </p>
         <Form id="public" onFinish={publicPlan}>
           <Flex>
-            <Form.Item label="课程" name="pclass" rules={[{ required: false }]}>
+            <Form.Item
+              label="课程(教师发布)"
+              name="belongsPlanString"
+              rules={[{ required: false }]}
+            >
               <Input disabled={false} />
             </Form.Item>
             <Form.Item

@@ -37,7 +37,6 @@ export default function student() {
   // }
 
   const user = JSON.parse(local);
-
   // if (user.userType === user) {
   //     location.href = "/login";
   //     return;
@@ -55,7 +54,7 @@ export default function student() {
     "2": <TeacherPublishPlan />,
     "3": <PlanSubmit prop={user} />,
     "4": <PlanHistoryStudent />,
-    "5": <PersonalCenter />,
+    "5": <PersonalCenter prop={user} />,
   };
 
   const onCancel = () => {

@@ -47,7 +47,7 @@ export default function admin() {
   //     return;
   // }
 
-  const [key, setKey] = useState<"1" | "2" | "3" | "4" | "5" | "6" | "7">("2");
+  const [key, setKey] = useState<"1" | "2" | "3" | "4" | "5" | "6" | "7">("4");
   const menu_item = ({ key }: { key: string }) => {
     if (
       key != "1" &&
@@ -69,7 +69,7 @@ export default function admin() {
     "4": <PlanAssess />,
     "5": <PlanHistoryAdmin />,
     "6": <PersonnelManagement />,
-    "7": <PersonalCenter />,
+    "7": <PersonalCenter prop={user} />,
   };
 
   const onCancel = () => {

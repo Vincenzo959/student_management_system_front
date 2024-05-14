@@ -8,16 +8,44 @@ import {
   Space,
   TableProps,
   Card,
+  message,
 } from "antd";
-import { useState } from "react";
+import FormItem from "antd/es/form/FormItem";
+import { useEffect, useState } from "react";
+
+interface Param {
+  condition: Condition;
+  page: QueryPage;
+}
+interface Condition {
+  ifScore: number | null;
+}
+interface QueryPage {
+  current: number;
+  total: number;
+  size: number;
+}
 
 export default function planAssess() {
-  const [responsive, setResponsive] = useState(false);
+  // 展示数据
   const [data, setData] = useState<DataType[]>();
-  const [datadtl, setDatadtl] = useState<DataType[]>();
-  const [form] = Form.useForm();
+  // 总数
+  const [total, setTotal] = useState<number>();
+  // 当前页码
+  const [currentPage, setCurrentPage] = useState<QueryPage>({
+    current: 1,
+    total: 0,
+    size: 5,
+  });
+  // 页面大小
+  const [size, setSize] = useState<number>(5);
+  //参数
+  const [value, setValue] = useState<Condition>({
+    ifScore: 0,
+  });
+  const [id, setId] = useState();
+  const [datadtl, setDatadtl] = useState<number>();
   const [open, setOpen] = useState<boolean>(false);
-  const [showTime, setShowTime] = useState("");
   type ColumnsType<T> = TableProps<T>["columns"];
   type DataType = {
     id: number;
@@ -33,8 +61,8 @@ export default function planAssess() {
   const columns: ColumnsType<DataType> = [
     {
       title: "学号",
-      dataIndex: "std_id",
-      key: "std_id",
+      dataIndex: "stuId",
+      key: "stuId",
     },
     {
       title: "姓名",
@@ -43,29 +71,23 @@ export default function planAssess() {
     },
     {
       title: "班级",
-      dataIndex: "sclass",
-      key: "sclass",
+      dataIndex: "uclass",
+      key: "uclass",
     },
     {
       title: "课程",
-      dataIndex: "nclass",
-      key: "nclass",
-    },
-    {
-      title: "标题",
-      dataIndex: "title",
-      key: "title",
+      dataIndex: "pclass",
+      key: "pclass",
     },
     {
       title: "实习实践报告名称",
-      dataIndex: "pname",
-      key: "pname",
+      dataIndex: "pclass",
+      key: "pclass",
     },
     {
-      title: "备注",
-      dataIndex: "note",
-      key: "note",
-      render: (_, record) => <a>查看详情</a>,
+      title: "报告提交名字",
+      dataIndex: "planName",
+      key: "planName",
     },
     {
       title: "提交时间",
@@ -81,155 +103,87 @@ export default function planAssess() {
         <Space size="middle">
           <a
             onClick={() => {
-              setOpen(true);
-              setDatadtl(data?.filter((item) => item.id === record.id));
+              location.href =
+                "http://127.0.0.1:9000/student-plan/" + record.planUrl;
             }}
           >
             查看报告
           </a>
           <a
             onClick={() => {
-              const flag = window.confirm("确定要删除吗？");
-              if (flag) {
-                const result = fetch("/api/login/updateInfo", {
-                  method: "POST",
-                  body: JSON.stringify({ isDeleted: "1", id: record.id }),
-                  headers: {
-                    "content-type": "application/json",
-                  },
-                });
-                setData(data?.filter((item) => item.id !== record.id));
-                window.alert("删除成功！");
-              }
+              setDatadtl(record.id);
+              setOpen(true);
             }}
           >
-            下载
+            打分
           </a>
-          <a>评分</a>
         </Space>
       ),
     },
   ];
-  const dataSource = [
-    {
-      id: 1234567,
-      std_id: 24346546,
-      name: "彭于晏",
-      sclass: "20大数据1",
-      nclass: "大数据技术",
-      title: "基于大数据进行数据分析1",
-      createTime: "2024-03-10",
-    },
-    {
-      id: 1234567,
-      std_id: 24346546,
-      name: "彭于晏",
-      sclass: "20大数据1",
-      nclass: "大数据技术",
-      title: "基于大数据进行数据分析1",
-      createTime: "2024-03-10",
-    },
-    {
-      id: 1234567,
-      std_id: 24346546,
-      name: "彭于晏",
-      sclass: "20大数据1",
-      nclass: "大数据技术",
-      title: "基于大数据进行数据分析1",
-      createTime: "2024-03-10",
-    },
-    {
-      id: 1234567,
-      std_id: 24346546,
-      name: "彭于晏",
-      sclass: "20大数据1",
-      nclass: "大数据技术",
-      title: "基于大数据进行数据分析1",
-      createTime: "2024-03-10",
-    },
-  ];
+
   const onCancel = () => {
     setOpen(false);
   };
 
-  const handSubmit = async (value: any) => {
-    // axios方法
-    // const result = await updateByWeatherInfo(value);
+  function fetchData(Param) {
+    fetch("/api/teacher/plan/studentPushPlanInfo/select/API_006", {
+      method: "POST",
+      body: JSON.stringify(Param),
+      headers: {
+        "content-type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        setData(
+          res.data.list.map((item) => ({
+            ...item,
+            createTime: item.createTime.replace("T", " "),
+          }))
+        );
+        setTotal(res.data.total);
+      });
+  }
 
-    //fetch方法
-    value["id"] = datadtl?.at(0)!.id;
-    const result = fetch("/api/login/updateInfo", {
+  const handSubmit = async (value: any) => {
+    value["planId"] = datadtl;
+    fetch("/api/teacher/plan/studentPushPlanInfo/update/API_007", {
       method: "POST",
       body: JSON.stringify(value),
       headers: {
         "content-type": "application/json",
       },
-    }).then((res) => res.json());
-    setOpen(false);
-    window.alert("修改成功！");
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.code === 0) {
+          message.success("评分成功");
+        } else {
+          message.error("评分失败");
+        }
+      });
   };
 
-  // const fetchData = () => {
-  //     if (user.userType === "super")
-  //         fetch("/api/login/queryUserList", { method: "GET" })
-  //             .then((res) => res.json())
-  //             .then(({ result }) => {
-  //                 setData(result);
-  //             });
-  // };
-  // useEffect(() => {
-  //     fetchData();
-  // }, []);
+  useEffect(() => {
+    currentPage["size"] = size;
+    const Param: Param = {
+      condition: value,
+      page: currentPage,
+    };
+    fetchData(Param);
+  }, [currentPage]);
   return (
     <>
       <Card>
         <p style={{ marginTop: "-10px", fontSize: "24px", fontWeight: "bold" }}>
           实习报告评定
         </p>
-        <Form>
-          <Flex>
-            <Form.Item label="班级" name="班级" rules={[{ required: false }]}>
-              <Input disabled={false} />
-            </Form.Item>
-            <Form.Item
-              label="课程"
-              name="课程"
-              rules={[{ required: false }]}
-              style={{ marginLeft: "20px" }}
-            >
-              <Input disabled={false} />
-            </Form.Item>
-            <Form.Item
-              label="实习实践报告名称"
-              name="实习实践报告名称"
-              rules={[{ required: false }]}
-              style={{ marginLeft: "20px" }}
-            >
-              <Input disabled={false} />
-            </Form.Item>
-            <Form.Item
-              label="标题"
-              name="标题"
-              rules={[{ required: false }]}
-              style={{ marginLeft: "20px" }}
-            >
-              <Input disabled={false} />
-            </Form.Item>
-            <Form.Item
-              label="学号"
-              name="学号"
-              rules={[{ required: false }]}
-              style={{ marginLeft: "20px" }}
-            >
-              <Input disabled={false} />
-            </Form.Item>
-          </Flex>
-        </Form>
-        <Table columns={columns} dataSource={dataSource} />
+        <Table columns={columns} dataSource={data} />
         <Modal
           open={open}
           onCancel={onCancel}
-          title="实验报告"
+          title="打分"
           footer={[
             <Button
               form="myForm"
@@ -241,7 +195,13 @@ export default function planAssess() {
               确定
             </Button>,
           ]}
-        ></Modal>
+        >
+          <Form id="myForm" onFinish={handSubmit}>
+            <FormItem label="分数" name="score">
+              <Input placeholder="请输入你的分数"></Input>
+            </FormItem>
+          </Form>
+        </Modal>
       </Card>
     </>
   );

@@ -33,7 +33,7 @@ export default ({ prop }) => {
               if (res.code !== 0) {
                 message.error(res.data);
               } else {
-                message.success("提交成功");
+                message.success("发布成功");
               }
             });
         }}
@@ -70,7 +70,7 @@ export default ({ prop }) => {
             label="课程名称"
             placeholder="请输入实习地点"
           />
-          <ProFormDigit name="count" label="人数" width="xs" />
+          <ProFormDigit name="studentNum" label="人数" width="xs" />
           <ProFormText
             width="md"
             name="address"

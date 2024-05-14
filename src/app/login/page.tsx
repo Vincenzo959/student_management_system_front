@@ -50,11 +50,11 @@ export default () => {
           if (result.data.password === value["password"]) {
             if (result.data.type == 0) {
               message.success("登入成功");
-              localStorage.setItem("user", JSON.stringify(result));
+              localStorage.setItem("user", JSON.stringify(result.data));
               location.href = "/student";
             } else {
               message.success("登入成功");
-              localStorage.setItem("user", JSON.stringify(result));
+              localStorage.setItem("user", JSON.stringify(result.data));
               location.href = "/admin";
             }
           }
