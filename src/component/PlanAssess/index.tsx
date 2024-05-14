@@ -136,12 +136,7 @@ export default function planAssess() {
     })
       .then((res) => res.json())
       .then((res) => {
-        setData(
-          res.data.list.map((item) => ({
-            ...item,
-            createTime: item.createTime.replace("T", " "),
-          }))
-        );
+        setData(res.data.list);
         setTotal(res.data.total);
       });
   }
