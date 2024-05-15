@@ -131,6 +131,27 @@ export default function register() {
         >
           <Input.Password />
         </Form.Item>
+        <Form.Item name="sex" label="性别">
+          <Input />
+        </Form.Item>
+        <Form.Item name="age" label="年龄">
+          <Input />
+        </Form.Item>
+        <Form.Item name="stdId" label="学号/工号">
+          <Input />
+        </Form.Item>
+        <Form.Item name="major" label="专业">
+          <Input />
+        </Form.Item>
+        <Form.Item name="grade" label="年级">
+          <Input />
+        </Form.Item>
+        <Form.Item name="aclass" label="班级">
+          <Input />
+        </Form.Item>
+        <Form.Item name="email" label="邮箱">
+          <Input />
+        </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">
             注册
